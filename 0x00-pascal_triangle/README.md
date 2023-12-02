@@ -7,10 +7,3 @@
 
 -Returns an empty list if n <= 0
 -You can assume n will be always an integer
-
-Curriculum <br>
-**Short Specializations** <br>
-
-# 0x00. Pascal's Triangle
-
-```Algorithm``` ```Python```
