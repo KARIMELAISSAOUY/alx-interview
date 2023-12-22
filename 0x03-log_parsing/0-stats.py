@@ -1,50 +1,62 @@
-#!/usr/bin/python3
-"""
-log parsing
-"""
-
+#!/usr/bin/env python3
 import sys
-import re
+import signal
 
+def signal_handler(sig, frame):
+    print_stats()
+    sys.exit(0)
 
-def output(log: dict) -> None:
-    """
-    helper function to display stats
-    """
-    print("File size: {}".format(log["file_size"]))
-    for code in sorted(log["code_frequency"]):
-        if log["code_frequency"][code]:
-            print("{}: {}".format(code, log["code_frequency"][code]))
+def print_stats():
+    print("File size: {}".format(total_size))
+    for code in sorted(status_codes):
+        print("{}: {}".format(code, status_codes[code]))
 
+def process_line(line):
+    try:
+        parts = line.split()
+        ip, date, method, path, protocol, status_code, file_size = (
+            parts[0], parts[3][1:], parts[5][1:], parts[6], parts[7], int(parts[8]), int(parts[9])
+        )
 
-if __name__ == "__main__":
-    regex = re.compile(
-    r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3} - \[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d+\] "GET /projects/260 HTTP/1.1" (.{3}) (\d+)')  # nopep8
+        if method == "GET" and path == "/projects/260" and protocol == "HTTP/1.1":
+            update_stats(status_code, file_size)
+            return True
+
+    except (IndexError, ValueError):
+        pass
+
+    return False
+
+def update_stats(status_code, file_size):
+    global total_size
+    total_size += file_size
+
+    if status_code in status_codes:
+        status_codes[status_code] += 1
+    else:
+        status_codes[status_code] = 1
+
+def main():
+    global total_size, status_codes
+    total_size = 0
+    status_codes = {}
 
     line_count = 0
-    log = {}
-    log["file_size"] = 0
-    log["code_frequency"] = {
-        str(code): 0 for code in [
-            200, 301, 400, 401, 403, 404, 405, 500]}
+
+    signal.signal(signal.SIGINT, signal_handler)
 
     try:
         for line in sys.stdin:
             line = line.strip()
-            match = regex.fullmatch(line)
-            if (match):
+            if process_line(line):
                 line_count += 1
-                code = match.group(1)
-                file_size = int(match.group(2))
 
-                # File size
-                log["file_size"] += file_size
+            if line_count == 10:
+                print_stats()
+                line_count = 0
 
-                # status code
-                if (code.isdecimal()):
-                    log["code_frequency"][code] += 1
+    except KeyboardInterrupt:
+        signal_handler(signal.SIGINT, None)
 
-                if (line_count % 10 == 0):
-                    output(log)
-    finally:
-        output(log)
+if __name__ == "__main__":
+    main()
