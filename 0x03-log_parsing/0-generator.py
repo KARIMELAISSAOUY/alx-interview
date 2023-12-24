@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 import random
 import sys
-import datetime
 from time import sleep
-
+import datetime
 
 for i in range(10000):
     sleep(random.random())
