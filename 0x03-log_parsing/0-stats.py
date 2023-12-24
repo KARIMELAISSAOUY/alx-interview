@@ -19,7 +19,7 @@ def output(log: dict) -> None:
 
 if __name__ == "__main__":
     regex = re.compile(
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3} - \[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d+\] "GET /projects/260 HTTP/1.1" (.{3}) (\d+)')  # nopep8
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3} - \[(.*?)\] "GET /projects/260 HTTP/1.1" (.{3}) (\d+)')
 
     line_count = 0
     log = {}
@@ -31,14 +31,13 @@ if __name__ == "__main__":
     try:
         for line in sys.stdin:
             line = line.strip()
-            match = regex.fullmatch(line)
+            match = regex.match(line)
             if match:
                 line_count += 1
-                code = match.group(1)
-                file_size = int(match.group(2))
+                date_str, code, file_size = match.groups()
 
                 # File size
-                log["file_size"] += file_size
+                log["file_size"] += int(file_size)
 
                 # status code
                 if code.isdecimal():
@@ -46,5 +45,7 @@ if __name__ == "__main__":
 
                 if line_count % 10 == 0:
                     output(log)
+    except KeyboardInterrupt:
+        pass
     finally:
         output(log)
