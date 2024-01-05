@@ -1,7 +1,5 @@
 #!/usr/bin/python3
-""" UTF-8 Validation 
-0x04.Validation
-"""
+""" UTF-8Validation"""
 
 
 def validUTF8(data):
