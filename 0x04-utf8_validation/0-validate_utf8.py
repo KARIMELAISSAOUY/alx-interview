@@ -13,7 +13,7 @@ def get_leading_set_bits(num):
 
 
 def validUTF8(data):
-    """determines if a given data set represents a valid UTF-8 encoding"""
+    """    Determine if a given data set represents a valid UTF-8 encoding."""
     bits_count = 0
     for i in range(len(data)):
         if bits_count == 0:
