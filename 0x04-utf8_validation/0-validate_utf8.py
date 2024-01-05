@@ -1,45 +1,32 @@
 #!/usr/bin/python3
-"""UTF-8 Validation"""
+"""UTF-8Validation"""
+
+
+def get_leading_set_bits(num):
+    """returns the number of leading set bits (1)"""
+    set_bits = 0
+    helper = 1 << 7
+    while helper & num:
+        set_bits += 1
+        helper = helper >> 1
+    return set_bits
+
 
 def validUTF8(data):
-    """
-    Determine if a given data set represents a valid UTF-8 encoding.
-    """
-    remaining_bytes = 0
-    mask_1 = 1 << 7
-    mask_2 = 1 << 6
-
-    for byte in data:
-        mask_byte = 1 << 7
-
-        if remaining_bytes == 0:
-            # Count the number of leading 1s to determine the number of bytes
-            while mask_byte & byte:
-                remaining_bytes += 1
-                mask_byte >>= 1
-
-            if remaining_bytes == 0:
+    """determines if a given data set represents a valid UTF-8 encoding"""
+    bits_count = 0
+    for i in range(len(data)):
+        if bits_count == 0:
+            bits_count = get_leading_set_bits(data[i])
+            '''1-byte (format: 0xxxxxxx)'''
+            if bits_count == 0:
                 continue
-
-            # Check if the number of bytes is valid
-            if remaining_bytes == 1 or remaining_bytes > 4:
+            '''a character in UTF-8 can be 1 to 4 bytes long'''
+            if bits_count == 1 or bits_count > 4:
                 return False
-
         else:
-            # Check if the byte follows the UTF-8 format
-            if not (byte & mask_1 and not (byte & mask_2)):
+            '''checks if current byte has format 10xxxxxx'''
+            if not (data[i] & (1 << 7) and not (data[i] & (1 << 6))):
                 return False
-
-        remaining_bytes -= 1
-
-    return remaining_bytes == 0
-
-# Test cases
-data1 = [65]
-print(validUTF8(data1))
-
-data2 = [80, 121, 116, 104, 111, 110, 32, 105, 115, 32, 99, 111, 111, 108, 33]
-print(validUTF8(data2))
-
-data3 = [229, 65, 127, 256]
-print(validUTF8(data3))
+        bits_count -= 1
+    return bits_count == 0
