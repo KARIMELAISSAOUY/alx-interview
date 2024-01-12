@@ -2,28 +2,25 @@
 """Solving N Queens Problem"""
 import sys
 
-
-def printSolution(board, n):
+def printSolution(board):
     """Print allocated positions to the queen"""
     solution = []
 
-    for r in range(n):
-        for c in range(n):
+    for r in range(len(board)):
+        for c in range(len(board)):
             if c == board[r]:
                 solution.append([r, c])
     print(solution)
-
 
 def is_position_safe(board, r, c, row):
     """Checks if the position is safe for the queen"""
     return board[r] in (c, c - r + row, r - row + c)
 
-
-def recursive_solve(board, row, n):
+def recursive_solve(board, row):
     """Find all safe positions where the queen can be allocated"""
+    n = len(board)
     if row == n:
-        printSolution(board, n)
-
+        printSolution(board)
     else:
         for c in range(n):
             allowed = True
@@ -32,19 +29,17 @@ def recursive_solve(board, row, n):
                     allowed = False
             if allowed:
                 board[row] = c
-                recursive_solve(board, row + 1, n)
-
+                recursive_solve(board, row + 1)
 
 def create_board(size):
     """Generates the board"""
-    return [0 * size for i in range(size)]
-
+    return [0] * size
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: nqueens N")
         sys.exit(1)
-    if sys.argv[1].isdigit() is False:
+    if not sys.argv[1].isdigit():
         print("N must be a number")
         sys.exit(1)
     if int(sys.argv[1]) < 4:
@@ -53,5 +48,4 @@ if __name__ == "__main__":
 
     N = int(sys.argv[1])
     myboard = create_board(N)
-    solutions = recursive_solve(myboard, 0, N)
-    
+    recursive_solve(myboard, 0)
