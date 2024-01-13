@@ -39,10 +39,7 @@ def solve_util(board, col, N, solutions):
             row_str = ""
             for j in range(N):
                 if board[i][j] == 1:
-                    row_str += "Q"
-                else:
-                    row_str += "."
-            solution.append(row_str)
+                    solution.append([i, j])
         solutions.append(solution)
         return True
 
@@ -59,9 +56,7 @@ def solve_util(board, col, N, solutions):
 
 def print_solutions(solutions):
     for solution in solutions:
-        for row in solution:
-            print(row)
-        print()
+        print(solution)
 
 
 if __name__ == "__main__":
@@ -81,6 +76,4 @@ if __name__ == "__main__":
 
     solutions = solve_nqueens(N)
     for solution in solutions:
-        for row in solution:
-            print(row)
-        print()
+        print(solution)
